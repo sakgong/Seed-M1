@@ -35,7 +35,10 @@ def build_report_payload(m: Dict[str, Any], meta: DocMeta) -> Dict[str, Any]:
     culprit = "A구역" if la["risk"] >= lb["risk"] else "B구역"
     status = risk_label_kr(r_max)
 
-    causes = [c for c, _ in m.get("causes", [])][:3] or ["특이 이상 없음"]
+    causes_pairs = m.get("causes", [])
+    if not causes_pairs:
+        causes_pairs = [("특이 이상 없음", 1.0)]
+    causes_top = causes_pairs[:3]
     actions = m.get("actions", [])
     p1 = actions[0][1] if actions else "운영 조건 점검"
 
@@ -58,7 +61,8 @@ def build_report_payload(m: Dict[str, Any], meta: DocMeta) -> Dict[str, Any]:
         "status": status,
         "r_max": r_max,
         "culprit": culprit,
-        "causes": causes,
+        "causes": causes_top,
+        "causes_top_names": [c for c, _ in causes_top],
         "p1": p1,
         "shock_24h": shock,
         "exposure_7d_pct": exposure,

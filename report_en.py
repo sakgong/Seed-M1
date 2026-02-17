@@ -54,7 +54,7 @@ def make_pdf_en(summary_only: bool, payload: Dict[str, Any]) -> bytes:
     summary_tbl = Table([
         ["Status", risk_label_en(float(payload["r_max"]))],
         ["Global Risk Score (max)", f"{payload['r_max']:.0f} / 100 (Reference: {payload['culprit']})"],
-        ["Top Drivers", ", ".join(payload["causes"])],
+        ["Top Drivers", ", ".join(payload.get("causes_top_names", [c for c,_ in payload.get("causes", [])]))],
         ["Immediate Action", payload["p1"]],
     ], colWidths=[170, 330])
     summary_tbl.setStyle(TableStyle([

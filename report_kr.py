@@ -56,7 +56,7 @@ def make_pdf_kr(summary_only: bool, payload: Dict[str, Any]) -> bytes:
     summary_tbl = Table([
         ["현재 상태", payload["status"]],
         ["전체 위험 점수(최대값 기준)", f"{payload['r_max']:.0f} / 100 (기준: {payload['culprit']})"],
-        ["주요 원인", ", ".join(payload["causes"])],
+        ["주요 원인", ", ".join(payload.get("causes_top_names", [c for c,_ in payload.get("causes", [])]))],
         ["지금 바로 조치", payload["p1"]],
     ], colWidths=[160, 340])
     summary_tbl.setStyle(TableStyle([
