@@ -114,9 +114,21 @@ def risk_badge_class(score: float) -> str:
     return "badge badge-risk"
 
 @st.cache_data(ttl=5)
-def load_latest_metrics():
+def load_latest_metrics(scenario: str = '일반'):
     loop_a = dict(risk=68, shock_24h=4, exposure_7d=0.32, util=0.86, do=6.2, temp=16.8, ph=7.72, sal=31.2)
     loop_b = dict(risk=31, shock_24h=0, exposure_7d=0.06, util=0.40, do=7.6, temp=16.6, ph=7.92, sal=31.0)
+
+    # 데모 시나리오(샘플 데이터) 프리셋
+    # - 내부 로직/파라미터는 건드리지 않고, 화면 데모용 값만 변경
+    if scenario == "산소량 급락":
+        loop_a.update(dict(risk=82, shock_24h=9, exposure_7d=0.48, util=0.92, do=5.3, temp=16.8, ph=7.68, sal=31.2))
+        loop_b.update(dict(risk=34, shock_24h=0, exposure_7d=0.05, util=0.38, do=7.7, temp=16.6, ph=7.92, sal=31.0))
+    elif scenario == "물 흐름 저하":
+        loop_a.update(dict(risk=63, shock_24h=2, exposure_7d=0.28, util=0.88, do=6.6, temp=16.7, ph=7.74, sal=31.1))
+        loop_b.update(dict(risk=41, shock_24h=1, exposure_7d=0.12, util=0.62, do=7.2, temp=16.6, ph=7.88, sal=31.0))
+    elif scenario == "여과 부담 증가":
+        loop_a.update(dict(risk=58, shock_24h=1, exposure_7d=0.22, util=0.84, do=6.9, temp=16.8, ph=7.55, sal=31.2))
+        loop_b.update(dict(risk=46, shock_24h=0, exposure_7d=0.15, util=0.66, do=7.4, temp=16.6, ph=7.83, sal=31.0))
     r_max = max(loop_a["risk"], loop_b["risk"])
     culprit = "Loop A" if loop_a["risk"] >= loop_b["risk"] else "Loop B"
     causes = [("산소 출렁임 증가", "DO 변동성 증가"), ("물순환 약화", "순환 상태 저하"), ("여과 부담 증가", "pH 불안정/부하 증가")]
@@ -141,11 +153,19 @@ def end_zone():
 st.sidebar.markdown("### Bio-OS 콘솔")
 st.sidebar.markdown('<div class="small-muted">투자자용 프리미엄 콘솔</div>', unsafe_allow_html=True)
 st.sidebar.markdown("---")
+# 데모 시나리오 선택(투자자/정부 설명용)
+scenario = st.sidebar.radio(
+    "데모 시나리오",
+    ["일반", "산소량 급락", "물 흐름 저하", "여과 부담 증가"],
+    index=0
+)
+
+st.sidebar.info("※ 현재 화면은 데모(샘플 데이터) 기반입니다.\n실증 단계에서는 실제 센서/DB 값으로 자동 전환됩니다.")
 st.sidebar.selectbox("데모 시나리오", ["Normal", "Oxygen Drop", "Pump Degradation", "Filter Stress"], index=0)
 show_english = False  # 한글 표준 고정
 st.sidebar.caption("※ 내부 로직/파라미터는 유지하고, 화면 표시는 표준 한글로 제공합니다.")
 
-m = load_latest_metrics()
+m = load_latest_metrics(scenario)
 r_max = m["r_max"]
 
 # ZONE 1
