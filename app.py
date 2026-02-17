@@ -129,8 +129,12 @@ col1, col2 = st.columns([1.2, 0.8])
 with col1:
     st.markdown('<div class="zone">', unsafe_allow_html=True)
     st.subheader("주요 원인(상위 3개)")
-    for c, w in payload["causes"]:
-        st.write(f"• {c} ({w:.0%})")
+    for item in payload.get("causes", []):
+        if isinstance(item, (list, tuple)) and len(item) == 2:
+            c, w = item
+            st.write(f"• {c} ({w:.0%})")
+        else:
+            st.write(f"• {item}")
     st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown('<div class="zone">', unsafe_allow_html=True)
